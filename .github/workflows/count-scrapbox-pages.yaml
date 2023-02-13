@@ -8,7 +8,7 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
 jobs:
-  test:
+  count-scrapboxpages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
