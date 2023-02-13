@@ -1,1 +1,5 @@
-# count-scrapbox-pages
+# scrapboxのページ数
+240
+
+# 出力時間
+2023/02/14 08:30:01
