@@ -3,6 +3,7 @@ name: "count scrapbox pages"
 on:
   schedule:
     - cron:  '0 20 * * *'
+  workflow_dispatch:
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
