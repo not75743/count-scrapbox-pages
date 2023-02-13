@@ -1,0 +1,51 @@
+name: "count scrapbox pages"
+
+on:
+  schedule:
+    - cron:  '0 20 * * *'
+
+env:
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: generate README.md and get scrapbox pages
+        run: |   
+          echo "# scrapboxのページ数" > README.md
+          echo "scrapbox_pages=$(curl -s ${{ secrets.SCRAPBOX_URL }} | jq '.[].title' | wc -l)" >> $GITHUB_ENV
+
+      - name: edit README.md
+        env:
+          TZ: 'Asia/Tokyo'
+        run: |   
+          echo "${{ env.scrapbox_pages }}" >> README.md
+          echo -n -e "\n" >> README.md
+          echo "# 出力時間" >> README.md
+          echo $(date +'%Y/%m/%d %H:%M:%S') >> README.md
+
+      - name: git setting and push
+        run: | 
+          git config user.name ${{ secrets.GIT_USER }}
+          git config user.email ${{ secrets.GIT_EMAIL }}
+          git add .
+          git commit -m "update README.md"
+          git push origin main
+
+      - name: Slack Notification on Success
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: todays scrapbox pages
+          SLACK_COLOR: good
+          SLACK_MESSAGE: "Scrapboxのページ数は${{ env.scrapbox_pages }} です:white_check_mark:"
+ 
+      - name: Slack Notification on Failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: Deploy Failure
+          SLACK_COLOR: danger
